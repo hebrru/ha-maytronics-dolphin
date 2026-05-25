@@ -37,7 +37,7 @@ BLE_ADVERTISEMENT_WAIT_SECONDS = 8
 BLE_SESSION_KEEPALIVE_INTERVAL_SEC = 120
 
 # Coordinator: PS_State poll interval while integration is loaded.
-DOLPHIN_STATE_POLL_INTERVAL_SEC = 45
+DOLPHIN_STATE_POLL_INTERVAL_SEC = 20
 
 # Config-entry options (Settings → integration → Configure).
 OPT_BLE_KEEPALIVE_SEC = "ble_keepalive_seconds"

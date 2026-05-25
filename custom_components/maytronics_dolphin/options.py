@@ -25,10 +25,12 @@ def get_integration_options(entry: ConfigEntry) -> dict[str, int | bool]:
     reconnect = opts.get(OPT_RECONNECT_BUTTON, DEFAULT_RECONNECT_BUTTON)
     probe = opts.get(OPT_DIAGNOSTIC_PROBE, False)
     persistent = opts.get(OPT_BLE_PERSISTENT_SESSION, False)
+    poll = int(poll)
+    poll = 0 if poll <= 0 else max(5, min(600, poll))
     return {
         OPT_BLE_KEEPALIVE_SEC: max(0, min(600, int(keepalive))),
         OPT_BLE_PERSISTENT_SESSION: bool(persistent),
-        OPT_STATE_POLL_SEC: max(0, min(600, int(poll))),
+        OPT_STATE_POLL_SEC: poll,
         OPT_RECONNECT_BUTTON: bool(reconnect),
         OPT_DIAGNOSTIC_PROBE: bool(probe),
     }

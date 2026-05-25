@@ -83,6 +83,7 @@ async def async_setup_entry(
         DolphinLedTestButton(entry),
         DolphinJoystickSendButton(entry),
         DolphinCardTestRunButton(entry),
+        DolphinRefreshStateButton(entry),
         DolphinReadNativeScheduleButton(entry),
         DolphinWriteNativeScheduleButton(entry),
         DolphinClearNativeScheduleButton(entry),
@@ -176,6 +177,19 @@ class DolphinCardTestRunButton(_DolphinButton):
         await self._send(
             build_bt_command_19(BTCommandType.CARD_TEST, card_subcommand=sub)
         )
+
+
+class DolphinRefreshStateButton(_DolphinButton):
+    """Force an immediate robot state poll."""
+
+    def __init__(self, entry: ConfigEntry) -> None:
+        super().__init__(entry, "refresh_state", "Actualiser etat")
+        self._attr_icon = "mdi:refresh"
+
+    async def async_press(self) -> None:
+        coord = self.hass.data[DOMAIN][self._entry.entry_id].get(DATA_COORDINATOR)
+        if coord is not None:
+            await coord.async_request_refresh()
 
 
 class DolphinReadNativeScheduleButton(_DolphinButton):

@@ -32,7 +32,7 @@ https://github.com/hebrru/ha-maytronics-dolphin
 - Activer les fonctions du boitier si le firmware les accepte.
 - Liberer la connexion Bluetooth quand le robot reste accroche.
 - Utiliser un proxy Bluetooth Home Assistant / ESPHome pres de la piscine.
-- Acceder a des boutons avances : ping, retour, reset defauts, reset filtre, joystick, test LED, test carte.
+- Acceder a des boutons avances : actualiser etat, ping, retour, reset defauts, reset filtre, joystick, test LED, test carte.
 
 ## Points importants
 
@@ -195,7 +195,7 @@ bluetooth_proxy:
 
 | Option | Defaut | Role |
 | --- | --- | --- |
-| Intervalle de lecture de l'etat | 45 s | Frequence de lecture PS_State |
+| Intervalle de lecture de l'etat | 20 s | Frequence de lecture PS_State. Avec un bon proxy Bluetooth, 10 a 15 s fonctionne souvent bien. Mettre `0` desactive la lecture automatique. |
 | Liberation Bluetooth periodique | 120 s | Deconnecte si une session reste ouverte |
 | Session BLE persistante | Off | Experimental, peut bloquer certains robots |
 | Bouton Liberer Bluetooth | On | Ajoute le bouton de liberation |

@@ -25,7 +25,7 @@
         "data": {
           "ble_persistent_session_enabled": "Session BLE persistante (avance, experimental)",
           "ble_keepalive_seconds": "Liberation Bluetooth periodique (ignoree si session persistante active)",
-          "state_poll_seconds": "Intervalle de lecture de l'etat (PS_State)",
+          "state_poll_seconds": "Intervalle de lecture de l'etat (PS_State, 10-20 s avec proxy)",
           "reconnect_button_enabled": "Afficher le bouton Liberer Bluetooth",
           "diagnostic_probe_enabled": "Lectures diagnostic fffc/fffd pendant la mise a jour"
         }

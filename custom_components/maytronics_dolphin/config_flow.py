@@ -104,7 +104,7 @@ class MaytronicsDolphinOptionsFlow(config_entries.OptionsFlow):
                     selector.NumberSelectorConfig(
                         min=0,
                         max=600,
-                        step=5,
+                        step=1,
                         mode=selector.NumberSelectorMode.BOX,
                         unit_of_measurement="s",
                     )
@@ -116,7 +116,7 @@ class MaytronicsDolphinOptionsFlow(config_entries.OptionsFlow):
                     selector.NumberSelectorConfig(
                         min=0,
                         max=600,
-                        step=5,
+                        step=1,
                         mode=selector.NumberSelectorMode.BOX,
                         unit_of_measurement="s",
                     )
