@@ -4,9 +4,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - ".github/workflows/release.yml"
-      - "custom_components/maytronics_dolphin/manifest.json"
+    tags:
+      - "v*"
   workflow_dispatch:
 
 permissions:
@@ -18,19 +17,37 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Read integration version
+      - name: Resolve release version
         id: version
         shell: bash
         run: |
-          version="$(python - <<'PY'
+          set -euo pipefail
+
+          manifest_version="$(python - <<'PY'
           import json
           with open("custom_components/maytronics_dolphin/manifest.json", encoding="utf-8") as f:
               print(json.load(f)["version"])
           PY
           )"
+
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            tag="${GITHUB_REF_NAME}"
+            version="${tag#v}"
+          else
+            version="$manifest_version"
+            tag="v$version"
+          fi
+
+          if [ "$manifest_version" != "$version" ]; then
+            echo "Manifest version $manifest_version does not match release version $version" >&2
+            exit 1
+          fi
+
           echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
       - name: Create release
         env:
@@ -53,6 +70,9 @@ jobs:
             git push origin "refs/tags/$TAG"
           fi
 
+          notes="Mise a jour pour HACS.\n\n- Version manifest: $VERSION.\n- Lecture d'etat plus reactive.\n- Traductions Home Assistant en francais et anglais.\n- Documentation a jour pour les modes, horaires natifs et commandes BLE."
+
           gh release create "$TAG" \
+            --target "$GITHUB_SHA" \
             --title "$TAG" \
-            --notes "Maytronics Dolphin BLE for Home Assistant $VERSION"
+            --notes "$notes"
