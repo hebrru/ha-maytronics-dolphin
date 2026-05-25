@@ -1,0 +1,42 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Maytronics Dolphin (BLE)",
+        "description": "Enter the Bluetooth MAC address or the 12-character Dolphin advertised name, for example A1B2C3D4E5F6.",
+        "data": {
+          "address": "Bluetooth MAC or Dolphin name",
+          "name": "Device name (optional)"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "Invalid value. Use AA:BB:CC:DD:EE:FF or 12 hexadecimal characters."
+    },
+    "abort": {
+      "already_configured": "This device is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Maytronics Dolphin options",
+        "description": "By default, Home Assistant connects only for one read or command, then disconnects. For faster response with a good Bluetooth proxy, set the state interval to 10 or 15 seconds. Persistent session is experimental and may wedge some robots.",
+        "data": {
+          "ble_keepalive_seconds": "Periodic Bluetooth release",
+          "state_poll_seconds": "State read interval",
+          "reconnect_button_enabled": "Show Release Bluetooth button",
+          "diagnostic_probe_enabled": "Enable diagnostic fffc/fffd reads",
+          "ble_persistent_session_enabled": "Experimental persistent BLE session"
+        },
+        "data_description": {
+          "ble_keepalive_seconds": "Disconnects the BLE link if it stays open. 120 s is a good safety value.",
+          "state_poll_seconds": "PS_State read frequency. 10 to 20 s is recommended with a nearby proxy. 0 disables automatic reads.",
+          "reconnect_button_enabled": "Adds a button to force Bluetooth release.",
+          "diagnostic_probe_enabled": "Adds extra GATT reads during updates. Keep disabled unless debugging.",
+          "ble_persistent_session_enabled": "Keeps the GATT connection open between commands. Faster, but may wedge some robots."
+        }
+      }
+    }
+  }
+}

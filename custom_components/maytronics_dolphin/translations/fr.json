@@ -1,0 +1,42 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Maytronics Dolphin (BLE)",
+        "description": "Entrez l'adresse MAC Bluetooth ou le nom Dolphin annonce sur 12 caracteres, par exemple A1B2C3D4E5F6.",
+        "data": {
+          "address": "MAC Bluetooth ou nom Dolphin",
+          "name": "Nom de l'appareil (optionnel)"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "Valeur invalide. Utilisez AA:BB:CC:DD:EE:FF ou 12 caracteres hexadecimaux."
+    },
+    "abort": {
+      "already_configured": "Cet appareil est deja configure."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options Maytronics Dolphin",
+        "description": "Par defaut, Home Assistant se connecte seulement pour une lecture ou une commande, puis se deconnecte. Pour une reponse plus rapide avec un bon proxy Bluetooth, mettez l'intervalle d'etat a 10 ou 15 secondes. La session persistante est experimentale et peut bloquer certains robots.",
+        "data": {
+          "ble_keepalive_seconds": "Liberation Bluetooth periodique",
+          "state_poll_seconds": "Intervalle de lecture de l'etat",
+          "reconnect_button_enabled": "Afficher le bouton Liberer Bluetooth",
+          "diagnostic_probe_enabled": "Activer les lectures diagnostic fffc/fffd",
+          "ble_persistent_session_enabled": "Session BLE persistante experimentale"
+        },
+        "data_description": {
+          "ble_keepalive_seconds": "Deconnecte le lien BLE s'il reste ouvert. 120 s est une bonne securite.",
+          "state_poll_seconds": "Frequence de lecture PS_State. 10 a 20 s est conseille avec un proxy proche. 0 desactive la lecture automatique.",
+          "reconnect_button_enabled": "Ajoute un bouton pour forcer la liberation du lien Bluetooth.",
+          "diagnostic_probe_enabled": "Ajoute des lectures GATT supplementaires pendant les mises a jour. A garder desactive sauf debug.",
+          "ble_persistent_session_enabled": "Garde la connexion GATT ouverte entre deux commandes. Plus rapide, mais peut figer certains robots."
+        }
+      }
+    }
+  }
+}
