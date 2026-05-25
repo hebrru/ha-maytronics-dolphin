@@ -1,179 +1,209 @@
-# Maytronics Dolphin (BLE) for Home Assistant
+# Maytronics Dolphin BLE pour Home Assistant
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.1%2B-03A9F4.svg)](https://www.home-assistant.io/)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-hebrru-FFDD00.svg?logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/hebrru)
 
-Community integration for **Maytronics Dolphin** pool robots that speak the **MyDolphin** Bluetooth protocol. Control power, read cleaner status, and use optional advanced commands — all locally over BLE.
+Integration Home Assistant pour piloter en local les robots de piscine Maytronics Dolphin compatibles avec le protocole Bluetooth MyDolphin.
 
+Le but est simple : garder le controle en local, sans cloud, avec des sessions BLE courtes pour eviter de bloquer le robot.
 
----
+Depot HACS :
 
-## What you get
+```text
+https://github.com/hebrru/ha-maytronics-dolphin
+```
 
-- **Power on/off** from Home Assistant (same commands as the MyDolphin app)
-- **Cleaner state** sensor (`off`, `on`, `hold`, `programming`, `self_test`)
-- **Cleaning active** and diagnostic **PS state data OK** binary sensors
-- **Autoclean** switch and extra **buttons** (home, reset faults, joystick, and more)
-- **Short BLE sessions** — connect only for each command or status poll, then disconnect (reduces “stuck Bluetooth light / frozen robot” reports)
-- Works with the optional **[Pool Cleaner Card](https://github.com/randrcomputers/ha-pool-cleaner-card)** Lovelace frontend
+## Ce que ca fait aujourd'hui
 
-**Not included (yet):** clean mode, cycle time, weekly schedule, and other **ConfigParamsWrite** settings from the app. Contributions welcome.
+- Allumer et eteindre le robot depuis Home Assistant.
+- Lire l'etat du robot : `off`, `on`, `hold`, `programming`, `self_test`.
+- Lire le statut de travail : `at_work`, `finished`, `fault`, `unknown`.
+- Lire le programme de nettoyage actif.
+- Changer le mode de nettoyage : `Standard`, `Rapide`, `Fond seul`, `Ligne d'eau`, `Ultra`.
+- Estimer la surface en cours : `floor`, `wall`, `waterline`, `unknown`.
+- Lire et ecrire le planning hebdomadaire natif du robot.
+- Regler les jours, heures et minutes du planning natif.
+- Activer/desactiver la repetition hebdomadaire native.
+- Synchroniser l'heure interne du robot.
+- Regler la duree de cycle native.
+- Regler le depart differe natif.
+- Lire les fonctions declarees par le boitier : `filter_status`, `weekly_timer`, `delayed_start`, `speed`.
+- Activer les fonctions du boitier si le firmware les accepte.
+- Liberer la connexion Bluetooth quand le robot reste accroche.
+- Utiliser un proxy Bluetooth Home Assistant / ESPHome pres de la piscine.
+- Acceder a des boutons avances : ping, retour, reset defauts, reset filtre, joystick, test LED, test carte.
 
----
+## Points importants
 
-## Requirements
+- Un seul client BLE a la fois : fermez MyDolphin pendant les tests Home Assistant.
+- Le robot doit annoncer en Bluetooth avant qu'une commande fonctionne.
+- Un proxy Bluetooth pres de la piscine change tout si le Raspberry est trop loin.
+- L'integration connecte, envoie/lit, puis deconnecte. C'est volontaire.
+- La mise a jour firmware OTA `fffb` n'est pas exposee.
 
-| Requirement | Notes |
-|-------------|--------|
-| **Home Assistant 2024.1+** | HAOS, Supervised, Container, Core |
-| **Bluetooth** | Built-in adapter **or** [Bluetooth proxy](https://www.home-assistant.io/integrations/bluetooth/) (ESPHome, Shelly, etc.) **near the pool** |
-| **Robot MAC address** | From **Settings → Devices & services → Bluetooth**, or nRF Connect |
-| **One BLE client at a time** | Close **MyDolphin** on your phone while testing HA |
+## Installation HACS
 
----
+1. Installez HACS si besoin.
+2. Allez dans HACS -> Integrations -> menu `...` -> Custom repositories.
+3. Ajoutez ce depot :
 
-## Install (HACS)
+```text
+https://github.com/hebrru/ha-maytronics-dolphin
+```
 
-1. Install [HACS](https://hacs.xyz/) if you have not already.
-2. HACS → **Integrations** → **⋮** → **Custom repositories**
-3. Add repository: `https://github.com/randrcomputers/ha-maytronics-dolphin`  
-   Category: **Integration**
-4. Open the new repo → **Download** → restart Home Assistant
-5. **Settings → Devices & services → Add integration → Maytronics Dolphin (BLE)**
-6. Enter the robot **Bluetooth MAC** (format `AA:BB:CC:DD:EE:FF`) and an optional friendly name.
+4. Choisissez la categorie `Integration`.
+5. Telechargez l'integration.
+6. Redemarrez Home Assistant.
+7. Allez dans Parametres -> Appareils et services -> Ajouter une integration.
+8. Cherchez `Maytronics Dolphin (BLE)`.
+9. Entrez l'adresse Bluetooth du robot, ou son nom BLE sur 12 caracteres si l'adresse est resolue par Home Assistant.
 
-This integration is **not** in the default HACS store; the custom repository URL above is how everyone installs it today.
+Exemples acceptes :
 
----
+```text
+AA:BB:CC:DD:EE:FF
+A1B2C3D4E5F6
+```
 
-## Pool Cleaner Card (optional)
+## Installation manuelle
 
-For a dashboard card with robot/PSU artwork, status pill, and power button:
+Copiez le dossier :
 
-1. Install **[Pool Cleaner Card](https://github.com/randrcomputers/ha-pool-cleaner-card)** (HACS → **Frontend** → custom repo).
-2. Add card → **Pool Cleaner Card**.
-3. Choose your **Dolphin device** — entities auto-fill.
+```text
+custom_components/maytronics_dolphin
+```
 
-| Card field | Integration entity |
-|------------|-------------------|
-| Power switch | **Power** |
-| Cleaner state | **Cleaner state** |
-| Cleaning active | **Cleaning active** (optional) |
-| BLE OK / connected | **Leave blank** (recommended) or **PS state data OK** (see below) |
+dans :
 
-**Tip:** Leave **BLE OK / connected** empty. The card then treats “reachable” as the power entity not being `unavailable`. Mapping **PS state data OK** makes the corner icon mean “last status poll succeeded,” which often goes dark while the robot is still fine.
+```text
+config/custom_components/maytronics_dolphin
+```
 
----
+Puis redemarrez Home Assistant.
 
-## Entities
+## Entites principales
 
-All entities are created on one **device** per configured robot.
+| Entite | Type | Role |
+| --- | --- | --- |
+| Alimentation | Switch | Demarrage / arret du robot |
+| Mode de nettoyage | Select | Standard, Rapide, Fond seul, Ligne d'eau, Ultra |
+| Etat du robot | Sensor | Etat PS_State du robot |
+| Programme de nettoyage | Sensor | Programme BLE lu depuis le robot |
+| Surface de nettoyage | Sensor | Detection best-effort sol / mur / ligne d'eau |
+| Statut de travail | Sensor | Etat de travail pour dashboards et automations |
+| Nettoyage actif | Binary sensor | Actif si le robot n'est pas completement eteint |
+| PS state data OK | Binary sensor | Derniere lecture d'etat BLE reussie |
+| Nettoyage auto | Switch | Commande autoclean experimentale |
 
-### Everyday use
+## Planning natif
 
-| Entity | Type | Purpose |
-|--------|------|---------|
-| **Power** | Switch | Turn robot on (**Startup**) / off (**Shutdown**) via GATT `fff8` |
-| **Cleaner state** | Sensor | Text status from **PS_State** poll |
-| **Clean program** | Sensor | Selected mode from **Working_Clean_Mode** (`regular`, `ultraclean`, `floor_only`*, `waterline`, …) |
-| **Cleaning surface** | Sensor | Best-effort **floor** / **wall** / **waterline** while running (see below) |
-| **Working status** | Sensor | `at_work`, `finished`, `fault`, or `unknown` from **GetStatusRead** (for pool card / automations) |
-| **Cleaning active** | Binary sensor | On when state is anything except `off` |
-| **Autoclean** | Switch | Enable/disable autoclean command (not synced from robot state) |
+L'integration expose le programmateur interne du robot, pas seulement une automation Home Assistant.
 
-### Diagnostics
+Entites utiles :
 
-| Entity | Type | Purpose |
-|--------|------|---------|
-| **PS state data OK** | Binary sensor | On when the last poll returned a parseable **PS_State** |
-| **Status raw (fffc)** | Sensor | Optional hex read (may be empty on some models) |
-| **Status raw (fffd)** | Sensor | Optional hex read (may be empty on some models) |
+| Entite | Type | Role |
+| --- | --- | --- |
+| Lire horaire natif | Button | Relit le planning stocke dans le robot |
+| Envoyer horaire natif | Button | Ecrit les jours/heures/minutes dans le robot |
+| Effacer horaire natif | Button | Vide le planning natif |
+| Synchroniser heure robot | Button | Met l'horloge interne du robot a l'heure Home Assistant |
+| Lundi...Dimanche horaire actif | Switch | Active le jour dans le planning natif |
+| Lundi...Dimanche heure horaire | Number | Heure de depart pour ce jour |
+| Lundi...Dimanche minute horaire | Number | Minute de depart pour ce jour |
+| Repetition horaire native | Switch | Active la repetition hebdomadaire |
+| Duree cycle native | Number | Duree de cycle ecrite dans le robot |
+| Retard depart natif | Number | Depart differe natif |
 
-### Advanced (buttons & helpers)
+Utilisation conseillee :
 
-Quit RC mode, Reset faults, Home, Reset dolphin, Reset filter indication, Ping, Wall sensor poll, LED test, Joystick X/Y + Send joystick, Card test type + Run card test.
+1. Appuyer sur `Lire horaire natif`.
+2. Activer les jours voulus.
+3. Regler heure et minute.
+4. Activer `Repetition horaire native` si besoin.
+5. Appuyer sur `Envoyer horaire natif`.
 
-When enabled in options: **Release Bluetooth** — forces disconnect if HA still holds the link.
+## Fonctions du boitier
 
----
+Certains boitiers ont les icones imprimees mais les fonctions desactivees dans leur configuration interne.
 
-## How status and power work
+L'integration peut lire :
 
-Understanding this avoids “wrong” dashboard readings:
+- `filter_status`
+- `weekly_timer`
+- `delayed_start`
+- `speed`
 
-1. **Power switch**  
-   Sends a 19-byte command immediately. Display follows **PS_State** when a poll succeeds; otherwise Home Assistant may show **assumed** on/off from your last tap.
+Le bouton `Activer fonctions boitier` envoie la commande BLE `Feature_Enable_OR_Disable`.
 
-2. **Cleaner state**  
-   Updates only after a successful **PS_State** read (about every poll interval). Can show `unknown` between polls or after a failed read.
+Sur un boitier compatible, cela peut activer :
 
-3. **PS state data OK**  
-   Means “the status **read** worked,” not “Bluetooth is connected like the phone app.” It can be **off** while **Power** commands still work.
+- le programmateur hebdomadaire du boitier,
+- le depart differe,
+- le mode rapide,
+- l'indication filtre.
 
-4. **Cleaning active**  
-   On for `hold`, `programming`, and `self_test` as well as `on` — not only “actively cleaning the pool.”
+Attention : cette commande ecrit dans la configuration du boitier d'alimentation. Elle est utile, mais elle doit etre utilisee consciemment.
 
-5. **Clean program**  
-   The **program you selected** in the app (e.g. `regular`, `ultraclean`, `waterline`) — **not** the same as live surface position.
+## Boutons 1 / 2 / 3 du boitier
 
-6. **Cleaning surface** (v0.7.2+)  
-   While the robot is **on** (PS_State not `off`), the integration also reads **InternalParamsRead** (`fffd`, 132-byte block) and infers surface:
+Sur les alimentations Maytronics compatibles, les boutons `1`, `2`, `3` correspondent au programme hebdomadaire du boitier :
 
-   | Value | Meaning |
-   |-------|---------|
-   | `floor` | Floor-only program (APK marker: climb byte **234** + clean byte **1**) or regular/fast-style programs |
-   | `waterline` | Waterline program |
-   | `wall` | **Experimental** — ultraclean + internal **phase byte** = 1 (offset 30 in APK layout; confirm on your unit via entity attributes) |
-   | `unknown` | Ultraclean or other modes where live surface is not decoded yet |
-   | `unavailable` | Robot off / no internal read |
+- `1` : nettoyage tous les jours pendant une semaine.
+- `2` : nettoyage un jour sur deux.
+- `3` : nettoyage tous les trois jours.
 
-   The MyDolphin app does **not** expose a dedicated “on wall now” label in BLE; wall/floor appears mainly as **fault** text (“Wall/floor sensor”). If **Cleaning surface** stays `unknown` during ultraclean, check attributes **`phase_byte`** / **`motor_aux_byte`** in Developer tools and open an issue with those values from floor vs wall.
+Si les boutons ne reagissent pas, verifiez le capteur `Fonctions boitier`.
 
-\* In the APK, `floor_only` shares wire code **1** with `regular`; **Cleaning surface** uses the internal **234** marker to detect floor-only anyway.
+Si `weekly_timer` est a `false`, appuyez sur `Activer fonctions boitier`, puis relisez les fonctions. Un redemarrage du boitier peut etre necessaire selon le modele.
 
-**Card shows “Unknown”** → **Cleaner state** is `unknown` (HA lost a good status read). That does **not** always mean the robot is locked up. Check the physical unit: still running? BT LED stuck on? Responds to **Power**?
+## Modes de nettoyage
 
----
+| Option Home Assistant | Commande Dolphin |
+| --- | --- |
+| Standard | `regular` |
+| Rapide | `fast_mode` |
+| Fond seul | marqueur interne `climbing_wall_time = 234` |
+| Ligne d'eau | `waterline` |
+| Ultra | `ultraclean` |
 
-## Integration options
+`Ultra` est le mode intensif quand le robot le supporte. Selon le modele, il peut modifier le comportement de deplacement et d'aspiration pour un nettoyage plus pousse.
 
-**Settings → Devices & services → Maytronics Dolphin (BLE) → Configure**
+## Bluetooth et portee
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| **State poll interval (PS_State)** | `45` s | How often HA reads status. Use `60`–`120` if the robot ever wedges; `0` = no automatic polls (commands only). |
-| **Periodic BLE release** | `120` s | Disconnect if still connected (safety net). `0` = off. Ignored when persistent session is on. |
-| **Persistent BLE session** | Off | **Experimental:** keep GATT connected between polls/commands (faster toggles; may wedge robot — use **Release Bluetooth** if BT LED sticks on). |
-| **Show Release Bluetooth button** | On | Adds **Release Bluetooth** on the device |
-| **Diagnostic fffc/fffd reads during poll** | Off | Extra GATT reads each poll — leave off unless debugging |
+Si les commandes sont lentes ou echouent :
 
-By default HA does **not** keep a permanent Bluetooth connection (connect → act → disconnect each time). Enable **Persistent BLE session** only if you want to test an always-on link.
+- rapprochez le robot ou le proxy Bluetooth,
+- fermez l'application MyDolphin,
+- appuyez sur `Liberer Bluetooth`,
+- attendez une annonce BLE du robot,
+- verifiez Parametres -> Appareils et services -> Bluetooth.
 
----
+Un proxy ESPHome peut etre ajoute avec :
 
-## Bluetooth tips
+```yaml
+esp32_ble_tracker:
+  scan_parameters:
+    active: true
 
-### Robot not found
+bluetooth_proxy:
+  active: true
+  connection_slots: 3
+```
 
-1. **Settings → Devices & services → Bluetooth** — confirm the Dolphin appears when the robot is awake and in range.
-2. **Close MyDolphin** on the phone; another client can block or delay GATT.
-3. Put a **Bluetooth proxy** in the pool area (ESPHome `bluetooth_proxy` is a common choice).
-4. After HA restarts, the first action may wait up to **25 seconds** for a connectable advertisement.
+## Options de l'integration
 
-### MAC address confusion
+| Option | Defaut | Role |
+| --- | --- | --- |
+| Intervalle de lecture de l'etat | 45 s | Frequence de lecture PS_State |
+| Liberation Bluetooth periodique | 120 s | Deconnecte si une session reste ouverte |
+| Session BLE persistante | Off | Experimental, peut bloquer certains robots |
+| Bouton Liberer Bluetooth | On | Ajoute le bouton de liberation |
+| Lectures diagnostic fffc/fffd | Off | A activer seulement pour debug |
 
-BLE listings sometimes show a **name** like `22554C074D50` (MAC digits without colons) while the **connectable address** differs (e.g. `e0:ff:f1:41:12:61`). Use the address from the Bluetooth device details or tooltip. The integration can resolve some name/MAC mismatches when the MyDolphin **FFF0** service is visible.
+## Debug
 
-### If the robot “freezes” (BT LED stuck on)
-
-1. Tap **Release Bluetooth** (if shown) or reload the integration.
-2. **Power-cycle** the robot (dock/unplug) once.
-3. Increase **State poll** to **60–120 s** or set **0** temporarily.
-4. Keep **Diagnostic fffc/fffd** disabled unless you are capturing logs.
-5. Do not run **MyDolphin** and HA control at the same time during testing.
-
-### Debug logging
-
-**Settings → System → Logs** → enable debug for:
+Ajoutez dans `configuration.yaml` :
 
 ```yaml
 logger:
@@ -182,30 +212,32 @@ logger:
     custom_components.maytronics_dolphin: debug
 ```
 
----
+## Compatibilite
 
-## Setup notes
+Developpe a partir des trames de l'application Android MyDolphin 2.3.19 et teste sur un robot compatible BLE service `FFF0`.
 
-- **Manual setup only** — enter the MAC in the config flow. Automatic Bluetooth discovery is disabled to avoid pairing random FFF0 devices.
-- If you previously added wrong devices from an older discovery build, remove them under **Devices & services** and keep only your real Dolphin.
+Les modeles Dolphin ne reagissent pas tous exactement pareil. Si une commande ne fonctionne pas, ouvrez une issue avec :
 
----
+- modele du robot,
+- modele du boitier,
+- etat des capteurs `Fonctions boitier`,
+- logs debug Home Assistant,
+- distance entre le robot et le proxy Bluetooth.
 
-## Supported hardware
+## Non expose volontairement
 
-Built and tested against **MyDolphin Android app 2.3.19** packet layouts (power on `fff8`, **PS_State** command `13` on `fffa` / `fff9`). Many Dolphin models using service **FFF0** work; some characteristics may differ — open an issue with model name and logs.
+- Firmware / OTA `fffb`.
+- Ecritures inconnues non validees.
+- Commandes destructives non documentees.
 
-**Firmware update / OTA** (`fffb`) is intentionally not exposed.
+## Soutenir le projet
 
----
+Si cette integration vous aide, vous pouvez soutenir le travail ici :
 
-## Legal
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-hebrru-FFDD00.svg?logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/hebrru)
 
-Maytronics®, Dolphin®, and MyDolphin® are trademarks of their respective owners. This project is independent community software with no endorsement from Maytronics.
+## Credits
 
----
+Projet communautaire independant, sans affiliation officielle avec Maytronics.
 
-## Links
-
-- **Issues:** [GitHub Issues](https://github.com/randrcomputers/ha-maytronics-dolphin/issues)
-- **Pool Cleaner Card:** [ha-pool-cleaner-card](https://github.com/randrcomputers/ha-pool-cleaner-card)
+Maytronics, Dolphin et MyDolphin sont des marques de leurs proprietaires respectifs.
