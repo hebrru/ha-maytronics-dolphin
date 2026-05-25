@@ -1,0 +1,35 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Maytronics Dolphin (BLE)",
+        "description": "Entrez l'adresse MAC Bluetooth ou le nom Dolphin annonce sur 12 caracteres, par exemple A1B2C3D4E5F6.",
+        "data": {
+          "address": "MAC Bluetooth ou nom Dolphin",
+          "name": "Nom de l'appareil (optionnel)"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "Valeur invalide (utilisez AA:BB:CC:DD:EE:FF ou 12 caracteres hexadecimaux)"
+    },
+    "abort": {
+      "already_configured": "Cet appareil est deja configure"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options Maytronics Dolphin",
+        "description": "Par defaut, Home Assistant se connecte seulement pour une lecture ou une commande, puis se deconnecte. Activez la session persistante uniquement pour tester un lien BLE permanent; cela peut bloquer le robot. Utilisez Liberer Bluetooth ou redemarrez l'alimentation si cela arrive.",
+        "data": {
+          "ble_persistent_session_enabled": "Session BLE persistante (avance, experimental)",
+          "ble_keepalive_seconds": "Liberation Bluetooth periodique (ignoree si session persistante active)",
+          "state_poll_seconds": "Intervalle de lecture de l'etat (PS_State)",
+          "reconnect_button_enabled": "Afficher le bouton Liberer Bluetooth",
+          "diagnostic_probe_enabled": "Lectures diagnostic fffc/fffd pendant la mise a jour"
+        }
+      }
+    }
+  }
+}
